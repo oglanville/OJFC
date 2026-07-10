@@ -3,7 +3,7 @@
 Live statistics site for **Old Johnians FC** (St John's School, Leatherhead), part of the Arthurian League.
 
 ## What it is
-A self-contained static page (`index.html`) that reads live from a Supabase Postgres database and renders:
+A self-contained static page (`index.html`) — the full OJFC Data Hub dashboard, password-gated (client-side). Tabs: Overview, Fixtures, Statistics, Payments, Communications, Actions. Statistics, Team Results and Missing Payments read live from Supabase; Payments P&L / ledger and Communications are a snapshot. Renders:
 - **Team results** by season (Overall / 2024-25 / 2025-26)
 - **Fantasy Football league** — points per player (App +2, Goal +5, Assist +3, MoM +3, Yellow -1, Red -3), sortable
 - **Missing payments** — players with unpaid match fees

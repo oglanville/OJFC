@@ -1,67 +1,257 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OJFC Stats — Live</title>
+<title>OJFC Data Hub</title>
 <style>
-:root{--grn:#0a6b37;--grn-d:#064d27;--grn-l:#e7f4ec;--grn-mid:#0f8a48;--gold:#e2b53c;--ink:#12241a;--sub:#5a6b60;--line:#d7e6dc;--bg:#eef4f0;--card:#fff;--red:#c0392b}
+:root{color-scheme:light;--grn:#0a6b37;--grn-d:#064d27;--grn-l:#e7f4ec;--grn-mid:#0f8a48;
+--gold:#e2b53c;--ink:#12241a;--sub:#5a6b60;--line:#d7e6dc;--bg:#eef4f0;--card:#ffffff;--red:#c0392b}
 *{box-sizing:border-box}
 body{margin:0;font-family:'Segoe UI',Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
-.wrap{max-width:1000px;margin:0 auto;padding:18px}
+.wrap{max-width:1060px;margin:0 auto;padding:16px}
 header{position:relative;overflow:hidden;background:linear-gradient(120deg,var(--grn-d),var(--grn-mid));color:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 4px 16px rgba(6,77,39,.28);display:flex;align-items:center;gap:16px}
 header::after{content:"";position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%)}
-.crest{width:64px;height:64px;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
-.htxt h1{margin:0;font-size:21px}.htxt p{margin:5px 0 0;opacity:.9;font-size:12.5px}
+.crest{flex:0 0 auto;width:66px;height:66px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.htxt h1{margin:0;font-size:22px;letter-spacing:.3px}.htxt p{margin:5px 0 0;opacity:.9;font-size:12.5px}
+.pill{display:inline-block;margin-top:7px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+nav{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0}
+nav button{border:1px solid var(--line);background:#fff;color:var(--grn-d);padding:8px 15px;border-radius:22px;cursor:pointer;font-size:12.5px;font-weight:700;transition:.15s}
+nav button:hover{border-color:var(--grn)}
+nav button.active{background:var(--grn);color:#fff;border-color:var(--grn);box-shadow:0 2px 8px rgba(10,107,55,.3)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(6,77,39,.05)}
 .card h2{margin:0 0 12px;font-size:15px;color:var(--grn-d);display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--grn-l);padding-bottom:8px}
 .card h2 .dot{width:9px;height:9px;border-radius:50%;background:var(--gold)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.stat{background:linear-gradient(160deg,#fff,var(--grn-l));border:1px solid var(--line);border-radius:13px;padding:16px}
+.stat .n{font-size:26px;font-weight:800;color:var(--grn-d);line-height:1}
+.stat .l{font-size:11.5px;color:var(--sub);margin-top:6px;font-weight:600}.stat .i{font-size:10.5px;color:var(--sub);margin-top:4px;font-style:italic}
 table{width:100%;border-collapse:collapse}
 th{background:var(--grn);color:#fff;text-align:left;padding:9px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
-td{padding:8px 10px;border-bottom:1px solid #eef3f0;font-size:12.5px;vertical-align:top}
+td{padding:8px 10px;border-bottom:1px solid #eef3f0;vertical-align:top;font-size:12.5px}
 tr:nth-child(even) td{background:#f8fbf9}
-.btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.btns button{border:1px solid var(--line);background:#fff;color:var(--grn-d);border-radius:16px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer}
-.btns button.on{background:var(--grn);color:#fff;border-color:var(--grn)}
+.muted{color:#8a988f;font-style:italic}
+.note{background:#fbf6e6;border:1px solid #efdca3;border-radius:10px;padding:11px 13px;color:#7c5f16;font-size:12.5px}
+.ok{color:var(--grn);font-weight:700}.due{color:var(--red);font-weight:700}
+.hide{display:none}
+.kd{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid #eef3f0}.kd:last-child{border-bottom:none}
+.kd .day{flex:0 0 auto;width:58px;text-align:center;background:var(--grn);color:#fff;border-radius:10px;padding:6px 0}
+.kd .day .d{font-size:19px;font-weight:800;line-height:1}.kd .day .m{font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.kd .ev b{color:var(--grn-d)}.kd .ev .meta{font-size:11.5px;color:var(--sub);margin-top:2px}.kd .cd{margin-left:auto;font-size:11px;color:var(--sub);font-weight:700;white-space:nowrap}
+.rowlist div.r{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid #eef3f0;font-size:12.5px}
+.rowlist div.r:last-child{border-bottom:none}
+.rowlist .num{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--grn-l);color:var(--grn-d);font-weight:800;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.rowlist .who{flex:0 0 auto;font-weight:700;color:var(--grn-d);min-width:120px}
+.rowlist .sub{color:#4a574f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--grn-l);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:12px}.chip b{color:var(--grn-d)}
+.li{padding:11px 12px;border:1px solid var(--line);border-radius:11px;margin-bottom:9px;background:#fff}
+.li b{color:var(--grn-d);font-size:13px}.li .from{font-size:11.5px;color:var(--sub);font-weight:600;margin-top:1px}
+.li .snip{font-size:12px;color:#4a574f;margin-top:5px}.li .btns{margin-top:8px;display:flex;gap:8px}
+.btn{border:1px solid var(--grn);background:var(--grn);color:#fff;border-radius:8px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:#fff;color:var(--sub);border-color:var(--line)}
+.sortbtns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sortbtns button{border:1px solid var(--line);background:#fff;color:var(--grn-d);border-radius:16px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer}
+.sortbtns button.on{background:var(--grn);color:#fff;border-color:var(--grn)}
 .rank{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-weight:800;font-size:11px;color:#fff;background:#9fb3a7}
 .rank.g1{background:linear-gradient(145deg,#e8c14a,#c99a1e)}.rank.g2{background:linear-gradient(145deg,#c7cdd2,#9aa1a8)}.rank.g3{background:linear-gradient(145deg,#d8a06a,#b17740)}
 .fphero{display:flex;gap:14px;align-items:center;background:linear-gradient(120deg,var(--grn-d),var(--grn-mid));color:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px}
 .fphero .pts{font-size:30px;font-weight:800;line-height:1}.fphero .who{font-size:15px;font-weight:700}.fphero .sub{opacity:.85;font-size:11.5px}
-.due{color:var(--red);font-weight:700}.muted{color:#8a988f;font-style:italic}
-.small{font-size:11px;color:var(--sub)}
-.bar{display:flex;justify-content:space-between;align-items:center;margin:14px 0}
-.reload{border:1px solid var(--grn);background:var(--grn);color:#fff;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer}
-.note{background:#fbf6e6;border:1px solid #efdca3;border-radius:10px;padding:11px 13px;color:#7c5f16;font-size:12.5px}
-.foot{text-align:center;color:#9aa79f;font-size:11px;margin:10px 0 4px}
+.foot{text-align:center;color:#9aa79f;font-size:11px;margin:10px 0 4px}.small{font-size:11px;color:var(--sub)}a{color:var(--grn)}
+.honours{display:flex;flex-wrap:wrap;gap:10px}.hon{flex:1 1 150px;background:var(--grn-l);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+.hon .yr{font-size:11px;color:var(--sub);font-weight:700}.hon .t{font-weight:700;color:var(--grn-d);margin-top:2px;font-size:13px}
+.teamblock{margin-bottom:16px}.teamblock h3{margin:0 0 8px;font-size:14px;color:var(--grn-d);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.teamblock h3 .gr{font-size:11.5px;color:var(--sub);font-weight:600}.tbc{color:#8a988f;font-style:italic}
+.closed{padding:9px 11px;border:1px solid var(--line);border-left:4px solid var(--grn);border-radius:8px;margin-bottom:8px;background:#f8fbf9;font-size:12.5px}
+.closed .ts{font-size:10.5px;color:var(--sub);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+#gate{position:fixed;inset:0;z-index:9999;background:linear-gradient(120deg,#064d27,#0f8a48);display:flex;align-items:center;justify-content:center;padding:20px}
+.gatebox{background:#fff;border-radius:16px;padding:28px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.gatecrest{width:56px;height:56px;margin:0 auto 10px;border-radius:50%;background:#0a6b37;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:18px}
+.gatebox h3{margin:0 0 4px;color:#064d27}.gatebox p{margin:0 0 14px;color:#5a6b60;font-size:12.5px}
+.gatebox input{width:100%;padding:10px 12px;border:1px solid #d7e6dc;border-radius:8px;font-size:14px;margin-bottom:10px}
+.gatebox button{width:100%;padding:10px;border:none;border-radius:8px;background:#0a6b37;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+#gateerr{color:#c0392b;font-size:12px;margin-top:8px;min-height:16px}
 </style></head><body>
+<div id="gate"><div class="gatebox"><div class="gatecrest">OJFC</div><h3>Old Johnians FC</h3><p>Enter the club password to continue</p><input id="gatepw" type="password" placeholder="Password" autocomplete="off"><button id="gatebtn">Enter</button><div id="gateerr"></div></div></div>
+<script>(function(){function ok(){document.getElementById('gate').style.display='none';}if(sessionStorage.getItem('ojfc_auth')==='1')ok();function t(){if(document.getElementById('gatepw').value==='OJFC2016'){sessionStorage.setItem('ojfc_auth','1');ok();}else{document.getElementById('gateerr').textContent='Incorrect password';document.getElementById('gatepw').value='';}}document.getElementById('gatebtn').addEventListener('click',t);document.getElementById('gatepw').addEventListener('keydown',function(e){if(e.key==='Enter')t();});document.getElementById('gatepw').focus();})();</script>
 <div class="wrap">
 <header>
-  <svg class="crest" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" aria-label="OJFC">
-    <path d="M50 4 L92 16 V56 C92 82 72 100 50 106 C28 100 8 82 8 56 V16 Z" fill="#0a6b37" stroke="#fff" stroke-width="4"/>
+  <svg class="crest" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OJFC crest">
+    <path d="M50 4 L92 16 V56 C92 82 72 100 50 106 C28 100 8 82 8 56 V16 Z" fill="#0a6b37" stroke="#ffffff" stroke-width="4"/>
     <path d="M50 12 L85 22 V56 C85 78 68 93 50 98 C32 93 15 78 15 56 V22 Z" fill="none" stroke="#e2b53c" stroke-width="1.5" opacity=".7"/>
     <circle cx="50" cy="46" r="16" fill="#fff"/>
-    <text x="50" y="52" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#0a6b37">OJ</text>
+    <path d="M50 34 l4.7 3.4 -1.8 5.5 h-5.8 l-1.8 -5.5z M36 44 l5.6 .2 1.6 5.6 -4.6 3.4 -4.6 -3.4z M64 44 l-5.6 .2 -1.6 5.6 4.6 3.4 4.6 -3.4z" fill="#0a6b37"/>
     <text x="50" y="80" text-anchor="middle" font-family="Georgia,serif" font-size="17" font-weight="700" fill="#fff">OJFC</text>
   </svg>
-  <div class="htxt"><h1>Old Johnians FC — Stats</h1><p>St John's School, Leatherhead · Live from Supabase</p></div>
+  <div class="htxt"><h1>Old Johnians FC</h1>
+    <p>St John's School, Leatherhead &middot; Arthurian League &middot; Treasurer's Data Hub</p>
+    <span class="pill">Crest placeholder &mdash; upload the club badge to embed the real one</span></div>
 </header>
-<div class="bar"><div class="btns" id="seasonbtns"></div><button class="reload" onclick="loadAll()">↻ Reload</button></div>
-<div class="card"><h2><span class="dot"></span>Team Results</h2><table><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Win%</th></tr></thead><tbody id="results"><tr><td colspan="9" class="muted">Loading…</td></tr></tbody></table></div>
-<div class="card"><h2><span class="dot"></span>🏆 Fantasy Football League</h2><div id="fphero" class="fphero"></div><div class="btns" id="sortbtns"></div><table><thead><tr><th>#</th><th>Player</th><th>Apps</th><th>Goals</th><th>Assists</th><th>MoM</th><th>Cards</th><th>Fantasy</th></tr></thead><tbody id="fptable"></tbody></table><div class="note" style="margin-top:10px">Scoring: Appearance +2 · Goal +5 · Assist +3 · MoM +3 · Yellow −1 · Red −3.</div></div>
-<div class="card"><h2><span class="dot"></span>Missing Payments</h2><table><thead><tr><th>#</th><th>Player</th><th>Amount owed (£)</th></tr></thead><tbody id="mistable"></tbody></table><div class="small" id="mistotal" style="margin-top:6px"></div></div>
-<div class="foot">OJFC Stats · reads v_player_stats / v_team_results / v_missing_payments live from Supabase</div>
+<nav id="nav"></nav>
+
+<section id="overview">
+  <div class="card"><h2><span class="dot"></span>Key Dates</h2><div id="keydates"></div>
+    <div class="small" style="margin-top:8px">Season 2026&ndash;27 Division One fixtures expected August 2026.</div></div>
+  <div class="card"><h2><span class="dot"></span>Top Actions</h2><div id="topactions" class="rowlist"></div></div>
+  <div class="card"><h2><span class="dot"></span>Latest Emails</h2><div id="latestmail" class="rowlist"><div class="small">Loading&hellip;</div></div></div>
+  <div class="card"><h2><span class="dot"></span>At a Glance</h2>
+    <div class="grid3">
+      <div class="stat"><div class="n">&pound;4,153</div><div class="l">Money in the bank</div><div class="i">current balance</div></div>
+      <div class="stat"><div class="n">&pound;165</div><div class="l">Owed to the club</div><div class="i">unpaid player fees</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">Open actions</div><div class="i">see Actions tab</div></div>
+    </div></div>
+  <div class="card"><h2><span class="dot"></span>Club &mdash; Teams &amp; Competitions</h2>
+    <div class="teamblock"><h3>1st XI <span class="gr">Home: Hampton Sports &amp; Fitness Centre &middot; KO 12:00</span></h3>
+      <div style="overflow-x:auto"><table><thead><tr><th>Competition</th><th>Current stage</th><th>Next match &mdash; date &amp; opponent</th></tr></thead><tbody>
+        <tr><td><b>Arthurian League &mdash; Division One</b></td><td>Season not started</td><td class="tbc">TBC &mdash; fixtures out ~Aug</td></tr>
+        <tr><td><b>Old Boys Cup 2026-27</b></td><td>Entered &mdash; draw pending</td><td class="tbc">TBC &mdash; awaiting draw</td></tr>
+        <tr><td><b>Arthur Dunn Cup 2026-27</b></td><td>Entry to be confirmed at AGM (16 Jul)</td><td class="tbc">TBC &mdash; awaiting draw</td></tr>
+      </tbody></table></div></div>
+    <div class="teamblock"><h3>2nd XI <span class="gr">Home: Imber Court, East Molesey &middot; KO 10:00</span></h3>
+      <div style="overflow-x:auto"><table><thead><tr><th>Competition</th><th>Current stage</th><th>Next match &mdash; date &amp; opponent</th></tr></thead><tbody>
+        <tr><td><b>Old Boys Cup 2026-27</b></td><td>Entered &mdash; draw pending</td><td class="tbc">TBC &mdash; awaiting draw</td></tr>
+        <tr><td><b>Junior League Cup (JLC)</b></td><td>Entered &mdash; draw pending</td><td class="tbc">TBC &mdash; awaiting draw</td></tr>
+        <tr><td><b>David Woolcott Trophy (DWT)</b></td><td>Entered &mdash; draw pending</td><td class="tbc">TBC &mdash; awaiting draw</td></tr>
+      </tbody></table></div></div>
+    <div class="small">Competitions reflect club entries confirmed with the league (Andy Copeland). Honours: 2023-24 Division 1 Champions &middot; 2017-18 Division 4 &amp; David Woolcott Trophy.</div></div>
+</section>
+
+<section id="fixtures" class="hide">
+  <div class="card"><h2><span class="dot"></span>Fixtures</h2>
+    <div class="note">2026-27 fixtures not released yet (league entries closed at the 8 Jul AGM; Full-Time list usually appears in August). The table below will populate once fixtures and cup draws are published.</div>
+    <div style="overflow-x:auto;margin-top:12px"><table><thead><tr>
+      <th>Date</th><th>Competition</th><th>Location (H/A)</th><th>Opposition</th><th>Opposition info</th><th>Yes responses</th><th>Squad (GK&rarr;FWD)</th>
+    </tr></thead><tbody>
+      <tr><td colspan="7" class="muted" style="text-align:center;padding:18px">No fixtures yet &mdash; awaiting release.</td></tr>
+    </tbody></table></div>
+    <div class="small" style="margin-top:8px">Home venues &mdash; 1st XI: Hampton Sports &amp; Fitness Centre, Hanworth Rd, Hampton TW12 3HB &middot; 2nd XI: Imber Court, Ember Lane, East Molesey KT8 0BT. "Opposition info", "Yes responses" &amp; "Squad" columns to be wired up next.</div>
+  </div>
+</section>
+
+<section id="stats" class="hide">
+  <div class="card"><h2><span class="dot"></span>Season</h2><div class="sortbtns" id="seasonbtns"></div>
+    <div class="small">Filters both Team Results and the Fantasy league below.</div></div>
+  <div class="card"><h2><span class="dot"></span>Team Results</h2>
+    <table><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Win%</th></tr></thead><tbody id="results"></tbody></table>
+    <div class="small" style="margin-top:6px">Derived from cashbook scorelines; OJ-v-OJ friendlies excluded.</div></div>
+  <div class="card"><h2><span class="dot"></span>&#127942; Fantasy Football League</h2>
+    <div id="fphero" class="fphero"></div>
+    <div class="sortbtns" id="sortbtns"></div>
+    <table><thead><tr><th>#</th><th>Player</th><th>Apps</th><th>Goals</th><th>Assists</th><th>MoM</th><th>Cards</th><th>Fantasy Pts</th></tr></thead><tbody id="fptable"></tbody></table>
+    <div class="note" style="margin-top:10px"><b>Scoring:</b> Appearance +2 &middot; Goal +5 &middot; Assist +3 &middot; MoM +3 &middot; Yellow &minus;1 &middot; Red &minus;3.</div></div>
+</section>
+
+<section id="payments" class="hide">
+  <div class="card"><h2><span class="dot"></span>Missing Payments</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Player</th><th>Amount owed (&pound;)</th></tr></thead><tbody id="mistable"></tbody></table></div>
+    <div class="note" style="margin-top:10px">Players with unpaid match fees (stats sheet: column Z total, where column AA = "No"). Ordered high&rarr;low. Total <b>&pound;165.20</b> across <span id="miscount"></span> players. Separately, the club owes <b>James Reid &pound;19</b>.</div></div>
+  <div class="card"><h2><span class="dot"></span>Last 20 Payments (cashbook)</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Payee</th><th>Payment</th><th>Category</th><th>Amount (&pound;)</th></tr></thead><tbody id="led20"></tbody></table></div></div>
+  <div class="card"><h2><span class="dot"></span>Season P&amp;L</h2>
+    <table><thead><tr><th>Line</th><th>25/26</th><th>24/25</th><th>23/24</th></tr></thead><tbody id="pltable"></tbody></table>
+    <div class="small" style="margin-top:6px">Source: OJFC Cashbook &middot; consolidated club.</div></div>
+</section>
+
+<section id="comms" class="hide">
+  <div class="card"><h2><span class="dot"></span>Actions &mdash; needs a response</h2><div id="comms-action"><div class="small">Loading&hellip;</div></div></div>
+  <div class="card"><h2><span class="dot"></span>For Information</h2><div id="comms-info"></div></div>
+</section>
+
+<section id="actions" class="hide">
+  <div class="card"><h2><span class="dot"></span>Open Actions</h2>
+    <table><thead><tr><th>Item</th><th>Owner</th><th>Status</th></tr></thead><tbody id="opentbl"></tbody></table></div>
+  <div class="card"><h2><span class="dot"></span>Closed Actions &amp; Movements</h2>
+    <div id="closedbox"></div>
+    <div class="small" style="margin-top:8px">Automatically logs emails you dismiss in Communications and money movements. Cleared items stay here for the record.</div></div>
+</section>
+
+<div class="foot">OJFC Data Hub &middot; green &amp; white &middot; communications shown as a snapshot (10 Jul 2026)</div>
 </div>
+
 <script>
-const SB="https://xplbkkqpgrukjejqufbk.supabase.co/rest/v1";
-const KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwbGJra3FwZ3J1a2planF1ZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2OTIyNjksImV4cCI6MjA5OTI2ODI2OX0.v0doWsusNTe5Yhul0vjHsOE5aLvLMGRuDClHJ1qGkqM";
-async function q(path){const r=await fetch(SB+path,{headers:{apikey:KEY,Authorization:"Bearer "+KEY}});if(!r.ok)throw new Error(r.status+" "+await r.text());return r.json();}
-let PLAYERS=[],RESULTS=[],MISSING=[],curSeason="overall",sortKey="fantasy_pts";
-const seasons=[["overall","Overall"],["2024/25","2024/25"],["2025/26","2025/26"]];
-const sorts=[["fantasy_pts","Fantasy"],["goals","Goals"],["assists","Assists"],["apps","Apps"]];
-function mkbtns(el,arr,cur,cb){el.innerHTML="";arr.forEach(([k,l])=>{const b=document.createElement("button");b.textContent=l;if(k===cur)b.classList.add("on");b.onclick=()=>{[...el.children].forEach(c=>c.classList.remove("on"));b.classList.add("on");cb(k);};el.appendChild(b);});}
+const DATA={"pl":{"25/26":{"mf":4484.5,"grant":7000,"inc":11484.5,"exp":-8685.87,"sur":2798.63},"24/25":{"mf":5014.4,"grant":5000,"inc":10014.4,"exp":-9822.03,"sur":192.37},"23/24":{"mf":4330.83,"grant":4000,"inc":8330.83,"exp":-11281.96,"sur":-2951.13}},"ledger20":[{"d":"18 Apr 26","payee":"Club Acct","pay":"Old Canfordians (A) - REF","cat":"Referee fees","amt":-50},{"d":"18 Apr 26","payee":"Archie Breakspear","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Club Acct","pay":"Old Canfordians (A) - TEA","cat":"Catering","amt":-100},{"d":"18 Apr 26","payee":"Club Acct","pay":"Yellow Card - Miller & Ralph","cat":"Yellow/Red Cards","amt":-24},{"d":"18 Apr 26","payee":"Tom Ellams","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Jack Potter","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Matt Bannister","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"James Bannister","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Ben Tudor","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Matt Denley","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Toby Miller","pay":"Old Canfordians (A)","cat":"Match fees","amt":18},{"d":"18 Apr 26","payee":"Rob Huskisson","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Ed Stait","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Finn Ralph","pay":"Old Canfordians (A)","cat":"Match fees","amt":18},{"d":"18 Apr 26","payee":"Henry Ball","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"18 Apr 26","payee":"Sam Sharp","pay":"Old Canfordians (A)","cat":"Match fees","amt":6},{"d":"18 Apr 26","payee":"Louie Fronzoni","pay":"Old Canfordians (A)","cat":"Match fees","amt":12},{"d":"11 Apr 26","payee":"Club Acct","pay":"Old Epsomians - (H) - REF","cat":"Referee fees","amt":-50},{"d":"11 Apr 26","payee":"Jack Potter","pay":"Old Epsomians - (H)","cat":"Match fees","amt":6},{"d":"11 Apr 26","payee":"Club Acct","pay":"Yellow Card - Miller","cat":"Yellow/Red Cards","amt":-12}]};const SEAS={};const SBURL="https://xplbkkqpgrukjejqufbk.supabase.co/rest/v1";const SBKEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwbGJra3FwZ3J1a2planF1ZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2OTIyNjksImV4cCI6MjA5OTI2ODI2OX0.v0doWsusNTe5Yhul0vjHsOE5aLvLMGRuDClHJ1qGkqM";async function sbq(p){var r=await fetch(SBURL+p,{headers:{apikey:SBKEY,Authorization:"Bearer "+SBKEY}});if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}function renderMissing(){var m=window.__MISS||[];var c=document.getElementById("miscount");if(c)c.textContent=m.length;var t=document.getElementById("mistable");if(t)t.innerHTML=m.map(function(p,i){return "<tr><td>"+(i+1)+"</td><td>"+esc(p.n)+"</td><td class=\"due\">\u00a3"+p.owes.toFixed(2)+"</td></tr>";}).join("");}async function fetchStats(){try{var res=await Promise.all([sbq("/v_player_stats?select=*"),sbq("/v_team_results?select=*"),sbq("/v_missing_payments?select=*")]);var pl=res[0],re=res[1],mi=res[2];["overall","2024/25","2025/26"].forEach(function(se){var players=pl.filter(function(x){return x.season===se;}).map(function(x){return {n:x.player,ap:x.apps,g:x.goals,a:x.assists,y:x.yellows,r:x.reds,m:x.mom,fp:x.fantasy_pts};});var results={};re.filter(function(x){return x.season===se;}).forEach(function(x){results[x.team]=[x.won,x.drawn,x.lost,x.goals_for,x.goals_against];});SEAS[se]={players:players,results:results};});window.__MISS=mi.map(function(x){return {n:x.player,owes:Number(x.amount_owed)};}).sort(function(a,b){return b.owes-a.owes;});renderResults();renderFp();renderMissing();}catch(e){}}
+const TODAY=new Date('2026-07-10');
+const OPEN_ACTIONS=[
+ ["Attend / RSVP Arthur Dunn Cup AGM &mdash; 16 Jul, 6pm, Paternoster House","Ollie / Harry"],
+ ["Pay James Reid &pound;19 (credit owed)","Ollie"],
+ ["Chase 14 players for &pound;165.20 unpaid match fees","Ollie"],
+ ["Upload the club crest to embed in this dashboard","Ollie"],
+ ["Send OJ highlights to St John's for summer newsletter","Ollie"],
+];
+const CLOSED_SEED=[
+ {ts:"01 Jun 2026",text:"&#128176; Paid pitch-hire settlement &pound;1,120 to Arthurian League"},
+ {ts:"01 Jun 2026",text:"&#128176; Kitlocker orders YC/49055 &amp; YC/49056 &mdash; paid &amp; written off"},
+ {ts:"08 Jul 2026",text:"&#9993; Confirmed 2nd XI entry to OBC / JLC / DWT with Andy Copeland"},
+ {ts:"08 Jul 2026",text:"&#9993; Confirmed oldjohnianfc@gmail.com as league point of contact"},
+];
+const tabs=[["overview","Overview"],["fixtures","Fixtures"],["stats","Statistics"],["payments","Payments"],["comms","Communications"],["actions","Actions"]];
+const nav=document.getElementById("nav");
+tabs.forEach(([id,label],i)=>{const b=document.createElement("button");b.textContent=label;b.className=id;if(i===0)b.classList.add("active");b.onclick=()=>show(id,b);nav.appendChild(b);});
+function show(id,btn){tabs.forEach(([t])=>document.getElementById(t).classList.add("hide"));document.getElementById(id).classList.remove("hide");[...nav.children].forEach(c=>c.classList.remove("active"));if(btn)btn.classList.add("active");if(id==="comms")renderComms();if(id==="actions")renderClosed();}
 function esc(x){return(x||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
-function renderResults(){const rows=RESULTS.filter(r=>r.season===curSeason);const b=document.getElementById("results");if(!rows.length){b.innerHTML='<tr><td colspan="9" class="muted">No data.</td></tr>';return;}b.innerHTML=rows.sort((a,z)=>a.team.localeCompare(z.team)).map(r=>{const gd=r.goals_for-r.goals_against;return `<tr><td><b>${esc(r.team)}</b></td><td>${r.played}</td><td>${r.won}</td><td>${r.drawn}</td><td>${r.lost}</td><td>${r.goals_for}</td><td>${r.goals_against}</td><td>${gd>0?"+":""}${gd}</td><td>${r.played?Math.round(r.won/r.played*100):0}%</td></tr>`;}).join("");}
-function renderFp(){const src=PLAYERS.filter(p=>p.season===curSeason);const ps=[...src].sort((a,b)=>b[sortKey]-a[sortKey]).slice(0,25);const top=[...src].sort((a,b)=>b.fantasy_pts-a.fantasy_pts)[0];document.getElementById("fphero").innerHTML=top?`<div class="pts">${top.fantasy_pts}</div><div><div class="who">⭐ ${esc(top.player)}</div><div class="sub">Fantasy leader · ${top.goals} goals, ${top.assists} assists, ${top.apps} apps, ${top.mom} MoM</div></div>`:'<div class="sub">No data.</div>';document.getElementById("fptable").innerHTML=ps.map((p,i)=>{const rk=i<3?`g${i+1}`:"";const cards=(p.yellows?p.yellows+"Y":"")+(p.reds?" "+p.reds+"R":"")||"-";return `<tr><td><span class="rank ${rk}">${i+1}</span></td><td><b>${esc(p.player)}</b></td><td>${p.apps}</td><td>${p.goals}</td><td>${p.assists}</td><td>${p.mom}</td><td>${cards}</td><td><b style="color:var(--grn-d)">${p.fantasy_pts}</b></td></tr>`;}).join("");}
-function renderMissing(){const m=[...MISSING].sort((a,b)=>b.amount_owed-a.amount_owed);document.getElementById("mistable").innerHTML=m.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.player)}</td><td class="due">£${Number(p.amount_owed).toFixed(2)}</td></tr>`).join("");const t=m.reduce((s,p)=>s+Number(p.amount_owed),0);document.getElementById("mistotal").textContent=`Total £${t.toFixed(2)} across ${m.length} players (rows where Paid = No).`;}
-async function loadAll(){try{const[pl,re,mi]=await Promise.all([q("/v_player_stats?select=*"),q("/v_team_results?select=*"),q("/v_missing_payments?select=*")]);PLAYERS=pl;RESULTS=re;MISSING=mi;renderResults();renderFp();renderMissing();}catch(e){document.getElementById("results").innerHTML='<tr><td colspan="9" class="note">Could not load: '+esc(String(e.message||e))+'</td></tr>';}}
-mkbtns(document.getElementById("seasonbtns"),seasons,curSeason,k=>{curSeason=k;renderResults();renderFp();});
-mkbtns(document.getElementById("sortbtns"),sorts,sortKey,k=>{sortKey=k;renderFp();});
-loadAll();
+
+// KEY DATES
+const KD=[{d:"2026-07-16",ev:"Arthur Dunn Cup AGM",loc:"Paternoster House, 65 St Paul's &middot; 6:00pm &middot; RSVP required"}];
+(function(){const fut=KD.map(x=>({...x,dt:new Date(x.d)})).filter(x=>x.dt>=TODAY).sort((a,b)=>a.dt-b.dt);
+ const box=document.getElementById("keydates");
+ box.innerHTML=fut.length?fut.map(x=>{const days=Math.round((x.dt-TODAY)/864e5);
+  return `<div class="kd"><div class="day"><div class="d">${x.dt.getDate()}</div><div class="m">${x.dt.toLocaleDateString("en-GB",{month:"short"})}</div></div>
+  <div class="ev"><b>${x.ev}</b><div class="meta">${x.loc}</div></div><div class="cd">in ${days} day${days==1?"":"s"}</div></div>`;}).join(""):'<div class="muted">No upcoming dates.</div>';})();
+
+// TOP ACTIONS
+document.getElementById("topactions").innerHTML=OPEN_ACTIONS.slice(0,5).map((a,i)=>`<div class="r"><span class="num">${i+1}</span><span class="sub">${a[0]}</span></div>`).join("");
+// OPEN ACTIONS table
+document.getElementById("opentbl").innerHTML=OPEN_ACTIONS.map(a=>`<tr><td>${a[0]}</td><td>${a[1]}</td><td class="due">Open</td></tr>`).join("");
+
+// SEASON + RESULTS
+let curSeason="overall";
+const seasonBtns=[["overall","Overall"],["2024/25","2024/25"],["2025/26","2025/26"]];
+const seb=document.getElementById("seasonbtns");
+seasonBtns.forEach(([k,l])=>{const b=document.createElement("button");b.textContent=l;if(k==="overall")b.classList.add("on");b.onclick=()=>{curSeason=k;[...seb.children].forEach(c=>c.classList.remove("on"));b.classList.add("on");renderResults();renderFp();};seb.appendChild(b);});
+function renderResults(){const R=(SEAS[curSeason]||{}).results||{};
+ document.getElementById("results").innerHTML=Object.entries(R).map(([k,r])=>{const[w,d,l,gf,ga]=r;const p=w+d+l;const gd=gf-ga;
+  return `<tr><td><b>${k}</b></td><td>${p}</td><td>${w}</td><td>${d}</td><td>${l}</td><td>${gf}</td><td>${ga}</td><td>${gd>0?'+':''}${gd}</td><td>${p?Math.round(w/p*100):0}%</td></tr>`;}).join("");}
+renderResults();
+
+// FANTASY
+let sortKey="fp";const sorts=[["fp","Fantasy Pts"],["g","Goals"],["a","Assists"],["ap","Apps"]];const sb=document.getElementById("sortbtns");
+sorts.forEach(([k,l])=>{const btn=document.createElement("button");btn.textContent=l;if(k==="fp")btn.classList.add("on");btn.onclick=()=>{sortKey=k;[...sb.children].forEach(c=>c.classList.remove("on"));btn.classList.add("on");renderFp();};sb.appendChild(btn);});
+function renderFp(){const src=(SEAS[curSeason]||{}).players||[];const ps=[...src].sort((a,b)=>b[sortKey]-a[sortKey]).slice(0,20);const top=[...src].sort((a,b)=>b.fp-a.fp)[0];
+ document.getElementById("fphero").innerHTML=top?`<div class="pts">${top.fp}</div><div><div class="who">&#11088; ${top.n}</div><div class="sub">Fantasy leader &middot; ${top.g} goals, ${top.a} assists, ${top.ap} apps, ${top.m} MoM</div></div>`:'<div class="sub">No data for this season.</div>';
+ document.getElementById("fptable").innerHTML=ps.map((p,i)=>{const rk=i<3?`g${i+1}`:"";const cards=(p.y?p.y+"Y":"")+(p.r?" "+p.r+"R":"")||"-";
+  return `<tr><td><span class="rank ${rk}">${i+1}</span></td><td><b>${p.n}</b></td><td>${p.ap}</td><td>${p.g}</td><td>${p.a}</td><td>${p.m}</td><td>${cards}</td><td><b style="color:var(--grn-d)">${p.fp}</b></td></tr>`;}).join("");}
+renderFp();
+
+// PAYMENTS: missing, last20, P&L
+(function(){const m=window.__MISS||[];document.getElementById("miscount").textContent=m.length;
+ document.getElementById("mistable").innerHTML=m.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.n)}</td><td class="due">&pound;${p.owes.toFixed(2)}</td></tr>`).join("");
+ document.getElementById("led20").innerHTML=(DATA.ledger20||[]).map(L=>{const a=L.amt;const cls=a<0?"due":"ok";const val=(a<0?"&minus;&pound;":"&pound;")+Math.abs(a).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  return `<tr><td>${esc(L.d)}</td><td>${esc(L.payee)}</td><td>${esc(L.pay)}</td><td>${esc(L.cat)}</td><td class="${cls}">${val}</td></tr>`;}).join("");
+ const P=DATA.pl;const rows=[["Match fees","mf"],["School grant","grant"],["Total income","inc"],["Expenditure","exp"],["Surplus / (Deficit)","sur"]];
+ const f=v=>{const s=v<0?'(':'';const e=v<0?')':'';return s+'&pound;'+Math.abs(Math.round(v)).toLocaleString()+e;};
+ document.getElementById("pltable").innerHTML=rows.map(([lab,k])=>{const bold=(k==="sur"||k==="inc");const cls=k==="sur"?' style="background:var(--grn-l)"':'';
+  return `<tr${cls}><td>${bold?'<b>'+lab+'</b>':lab}</td><td>${bold?'<b>':''}${f(P['25/26'][k])}${bold?'</b>':''}</td><td>${f(P['24/25'][k])}</td><td>${f(P['23/24'][k])}</td></tr>`;}).join("");})();
+
+// COMMS + LATEST EMAILS (single fetch)
+const NOISE=/instagram\.com|matchcore|dpd|dpdlocal|royalmail|worldpay|santander|opayo|kitlocker\.com|notifications\.kitlocker|google\.com|veo\.com|apply-now/i;
+const NAMES={"andrew.copeland@yahoo.co.uk":"Andrew Copeland","noreply@refsec.org":"Jonathan Hunter (RefSec)","jonathan.hunter142@gmail.com":"Jonathan Hunter","arthurdunnhonsec@gmail.com":"Richard McGarry","ah22alnafa@gmail.com":"Tony Hall","ascott@stjohns.surrey.sch.uk":"Amelia Scott","arthurianstats@gmail.com":"Arthurian Stats","arthuriandinnersec@outlook.com":"Dinner Secretary","harry.adams@manutd.co.uk":"Harry Adams","oldjohnianfc@gmail.com":"Old Johnians FC"};
+const ACTION=/entr|rsvp|action|submit|complete|form|please|confirm|payment|repl|response|deadline|attend|balance|settle|owe|fee|invoice|update|checklist|free week/i;
+function nameFor(s){s=(s||"").trim();const m=s.match(/<([^>]+)>/);const em=(m?m[1]:s).toLowerCase();if(NAMES[em])return NAMES[em];if(m&&s.split('<')[0].trim())return s.split('<')[0].replace(/["']/g,'').trim();const lp=em.split('@')[0].replace(/[._]/g,' ');return lp.replace(/\b\w/g,c=>c.toUpperCase());}
+const STATIC_THREADS=[{"id": "19f4224eeb69f099", "subj": "OJ 2s", "who": "Andrew Copeland", "snip": "2nd XI cup entries confirmed \u2014 Old Boys Cup, JLC and David Woolcott Trophy.", "d": "2026-07-08", "isAct": true}, {"id": "19f409d655608826", "subj": "Fwd: AGM docs and final word on the meeting", "who": "Harry Adams", "snip": "Chairman forwarded the AGM documents ahead of the 6:30pm meeting.", "d": "2026-07-08", "isAct": true}, {"id": "19f3beb5ea64ea17", "subj": "Test / point of contact", "who": "Jonathan Hunter (RefSec)", "snip": "Confirming club officer contacts. oldjohnianfc@gmail.com remains the OJ point of contact.", "d": "2026-07-07", "isAct": false}, {"id": "19f279701cd03e79", "subj": "AGM & Appendixes \u2014 Wed 8 July", "who": "Jonathan Hunter (RefSec)", "snip": "AGM agenda, appendixes and start-of-season checklist for the 8 July meeting.", "d": "2026-07-03", "isAct": true}, {"id": "19f1d5fe667a0e78", "subj": "Summer Newsletter", "who": "Amelia Scott", "snip": "Request for OJ highlights and photos for the school's summer e-newsletter.", "d": "2026-07-01", "isAct": true}, {"id": "19efe90aca7ac112", "subj": "Old Boys Cup 2026-27", "who": "Jonathan Hunter (RefSec)", "snip": "OBC entries open \u2014 7 open-aged competitions, teams allocated by strength.", "d": "2026-06-25", "isAct": false}, {"id": "19ef8e63ca6d2055", "subj": "Arthurian League entries & free weeks", "who": "Jonathan Hunter (RefSec)", "snip": "Ahead of the AGM: complete Team Entries and Closure Dates forms.", "d": "2026-06-24", "isAct": true}, {"id": "19ed21e6d60e6963", "subj": "Arthur Dunn Cup 2026/2027 AGM", "who": "Richard McGarry", "snip": "Invite to the Arthur Dunn Cup AGM, 6pm Thu 16 July, Paternoster House. RSVP required.", "d": "2026-06-16", "isAct": true}, {"id": "19e728923c85cc3b", "subj": "Pitch hire balance 2025-26", "who": "Tony Hall", "snip": "End-of-season Hampton & Whitton settlement: \u00a31,120 balance. Paid & confirmed.", "d": "2026-05-29", "isAct": false}, {"id": "19e1717235d49950", "subj": "Submit your scorers", "who": "Arthurian Stats", "snip": "Reminder to submit OJ goalscorers for outstanding fixtures.", "d": "2026-05-11", "isAct": true}, {"id": "19e16587258b22a2", "subj": "OJ Drinks", "who": "Amelia Scott", "snip": "London drinks invite; rescheduled to 11 June due to tube strikes.", "d": "2026-05-11", "isAct": false}, {"id": "19dd38fc0fac09ce", "subj": "Annual Dinner 2026", "who": "Dinner Secretary", "snip": "League Annual Dinner 22 May, Grand Connaught Rooms; guest speaker Graeme Le Saux.", "d": "2026-04-28", "isAct": false}];
+let THREADS=STATIC_THREADS.map(t=>({id:t.id,subj:t.subj,who:t.who,snip:t.snip,isAct:t.isAct,d:new Date(t.d)})).sort((a,b)=>b.d-a.d);
+function loadThreads(){renderLatest();renderComms();}
+function renderLatest(){const box=document.getElementById("latestmail");if(!THREADS)return;const t=THREADS.slice(0,5);
+ box.innerHTML=t.length?t.map((x,i)=>`<div class="r"><span class="num">${i+1}</span><span class="who">${esc(x.who)}</span><span class="sub">${esc(x.subj)}</span></div>`).join(""):'<div class="muted">No recent club emails.</div>';}
+function dismissed(){try{return JSON.parse(localStorage.getItem("ojfc_dismiss")||"[]")}catch(e){return[]}}
+function closedLog(){try{return JSON.parse(localStorage.getItem("ojfc_closed")||"[]")}catch(e){return[]}}
+function dismiss(id){const d=dismissed();const t=(THREADS||[]).find(x=>x.id===id);if(!d.includes(id))d.push(id);localStorage.setItem("ojfc_dismiss",JSON.stringify(d));
+ if(t){const log=closedLog();log.unshift({ts:new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short"}),text:'&#9993; Handled email: "'+esc(t.subj)+'" &mdash; '+esc(t.who)});localStorage.setItem("ojfc_closed",JSON.stringify(log));}
+ renderComms();renderClosed();}
+function renderComms(){if(!THREADS){return;}const A=document.getElementById("comms-action"),I=document.getElementById("comms-info");const dis=dismissed();
+ const act=THREADS.filter(x=>x.isAct&&!dis.includes(x.id)),inf=THREADS.filter(x=>!x.isAct&&!dis.includes(x.id));
+ const card=x=>`<div class="li"><b>${esc(x.subj)}</b><div class="from">${esc(x.who)} &middot; ${x.d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})}</div><div class="snip">${esc(x.snip)}</div><div class="btns"><a class="btn" href="https://mail.google.com/mail/u/0/#all/${x.id}" target="_blank">Open</a><button class="btn ghost" onclick="dismiss('${x.id}')">Dismiss</button></div></div>`;
+ A.innerHTML=act.length?act.map(card).join(""):'<div class="muted">Nothing needs a response right now.</div>';
+ I.innerHTML=inf.length?inf.map(card).join(""):'<div class="muted">No informational items.</div>';}
+function renderClosed(){const log=closedLog();const all=[...log,...CLOSED_SEED];
+ document.getElementById("closedbox").innerHTML=all.length?all.map(c=>`<div class="closed"><span class="ts">${c.ts}</span><br>${c.text}</div>`).join(""):'<div class="muted">Nothing closed yet.</div>';}
+renderClosed();
+loadThreads();
+fetchStats();
 </script></body></html>
