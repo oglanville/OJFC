@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OJFC Stats — Live</title>
+<style>
+:root{--grn:#0a6b37;--grn-d:#064d27;--grn-l:#e7f4ec;--grn-mid:#0f8a48;--gold:#e2b53c;--ink:#12241a;--sub:#5a6b60;--line:#d7e6dc;--bg:#eef4f0;--card:#fff;--red:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+.wrap{max-width:1000px;margin:0 auto;padding:18px}
+header{position:relative;overflow:hidden;background:linear-gradient(120deg,var(--grn-d),var(--grn-mid));color:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 4px 16px rgba(6,77,39,.28);display:flex;align-items:center;gap:16px}
+header::after{content:"";position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%)}
+.crest{width:64px;height:64px;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.htxt h1{margin:0;font-size:21px}.htxt p{margin:5px 0 0;opacity:.9;font-size:12.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(6,77,39,.05)}
+.card h2{margin:0 0 12px;font-size:15px;color:var(--grn-d);display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--grn-l);padding-bottom:8px}
+.card h2 .dot{width:9px;height:9px;border-radius:50%;background:var(--gold)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--grn);color:#fff;text-align:left;padding:9px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+td{padding:8px 10px;border-bottom:1px solid #eef3f0;font-size:12.5px;vertical-align:top}
+tr:nth-child(even) td{background:#f8fbf9}
+.btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.btns button{border:1px solid var(--line);background:#fff;color:var(--grn-d);border-radius:16px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer}
+.btns button.on{background:var(--grn);color:#fff;border-color:var(--grn)}
+.rank{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-weight:800;font-size:11px;color:#fff;background:#9fb3a7}
+.rank.g1{background:linear-gradient(145deg,#e8c14a,#c99a1e)}.rank.g2{background:linear-gradient(145deg,#c7cdd2,#9aa1a8)}.rank.g3{background:linear-gradient(145deg,#d8a06a,#b17740)}
+.fphero{display:flex;gap:14px;align-items:center;background:linear-gradient(120deg,var(--grn-d),var(--grn-mid));color:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.fphero .pts{font-size:30px;font-weight:800;line-height:1}.fphero .who{font-size:15px;font-weight:700}.fphero .sub{opacity:.85;font-size:11.5px}
+.due{color:var(--red);font-weight:700}.muted{color:#8a988f;font-style:italic}
+.small{font-size:11px;color:var(--sub)}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:14px 0}
+.reload{border:1px solid var(--grn);background:var(--grn);color:#fff;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer}
+.note{background:#fbf6e6;border:1px solid #efdca3;border-radius:10px;padding:11px 13px;color:#7c5f16;font-size:12.5px}
+.foot{text-align:center;color:#9aa79f;font-size:11px;margin:10px 0 4px}
+</style></head><body>
+<div class="wrap">
+<header>
+  <svg class="crest" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" aria-label="OJFC">
+    <path d="M50 4 L92 16 V56 C92 82 72 100 50 106 C28 100 8 82 8 56 V16 Z" fill="#0a6b37" stroke="#fff" stroke-width="4"/>
+    <path d="M50 12 L85 22 V56 C85 78 68 93 50 98 C32 93 15 78 15 56 V22 Z" fill="none" stroke="#e2b53c" stroke-width="1.5" opacity=".7"/>
+    <circle cx="50" cy="46" r="16" fill="#fff"/>
+    <text x="50" y="52" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#0a6b37">OJ</text>
+    <text x="50" y="80" text-anchor="middle" font-family="Georgia,serif" font-size="17" font-weight="700" fill="#fff">OJFC</text>
+  </svg>
+  <div class="htxt"><h1>Old Johnians FC — Stats</h1><p>St John's School, Leatherhead · Live from Supabase</p></div>
+</header>
+<div class="bar"><div class="btns" id="seasonbtns"></div><button class="reload" onclick="loadAll()">↻ Reload</button></div>
+<div class="card"><h2><span class="dot"></span>Team Results</h2><table><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Win%</th></tr></thead><tbody id="results"><tr><td colspan="9" class="muted">Loading…</td></tr></tbody></table></div>
+<div class="card"><h2><span class="dot"></span>🏆 Fantasy Football League</h2><div id="fphero" class="fphero"></div><div class="btns" id="sortbtns"></div><table><thead><tr><th>#</th><th>Player</th><th>Apps</th><th>Goals</th><th>Assists</th><th>MoM</th><th>Cards</th><th>Fantasy</th></tr></thead><tbody id="fptable"></tbody></table><div class="note" style="margin-top:10px">Scoring: Appearance +2 · Goal +5 · Assist +3 · MoM +3 · Yellow −1 · Red −3.</div></div>
+<div class="card"><h2><span class="dot"></span>Missing Payments</h2><table><thead><tr><th>#</th><th>Player</th><th>Amount owed (£)</th></tr></thead><tbody id="mistable"></tbody></table><div class="small" id="mistotal" style="margin-top:6px"></div></div>
+<div class="foot">OJFC Stats · reads v_player_stats / v_team_results / v_missing_payments live from Supabase</div>
+</div>
+<script>
+const SB="https://xplbkkqpgrukjejqufbk.supabase.co/rest/v1";
+const KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhwbGJra3FwZ3J1a2planF1ZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2OTIyNjksImV4cCI6MjA5OTI2ODI2OX0.v0doWsusNTe5Yhul0vjHsOE5aLvLMGRuDClHJ1qGkqM";
+async function q(path){const r=await fetch(SB+path,{headers:{apikey:KEY,Authorization:"Bearer "+KEY}});if(!r.ok)throw new Error(r.status+" "+await r.text());return r.json();}
+let PLAYERS=[],RESULTS=[],MISSING=[],curSeason="overall",sortKey="fantasy_pts";
+const seasons=[["overall","Overall"],["2024/25","2024/25"],["2025/26","2025/26"]];
+const sorts=[["fantasy_pts","Fantasy"],["goals","Goals"],["assists","Assists"],["apps","Apps"]];
+function mkbtns(el,arr,cur,cb){el.innerHTML="";arr.forEach(([k,l])=>{const b=document.createElement("button");b.textContent=l;if(k===cur)b.classList.add("on");b.onclick=()=>{[...el.children].forEach(c=>c.classList.remove("on"));b.classList.add("on");cb(k);};el.appendChild(b);});}
+function esc(x){return(x||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function renderResults(){const rows=RESULTS.filter(r=>r.season===curSeason);const b=document.getElementById("results");if(!rows.length){b.innerHTML='<tr><td colspan="9" class="muted">No data.</td></tr>';return;}b.innerHTML=rows.sort((a,z)=>a.team.localeCompare(z.team)).map(r=>{const gd=r.goals_for-r.goals_against;return `<tr><td><b>${esc(r.team)}</b></td><td>${r.played}</td><td>${r.won}</td><td>${r.drawn}</td><td>${r.lost}</td><td>${r.goals_for}</td><td>${r.goals_against}</td><td>${gd>0?"+":""}${gd}</td><td>${r.played?Math.round(r.won/r.played*100):0}%</td></tr>`;}).join("");}
+function renderFp(){const src=PLAYERS.filter(p=>p.season===curSeason);const ps=[...src].sort((a,b)=>b[sortKey]-a[sortKey]).slice(0,25);const top=[...src].sort((a,b)=>b.fantasy_pts-a.fantasy_pts)[0];document.getElementById("fphero").innerHTML=top?`<div class="pts">${top.fantasy_pts}</div><div><div class="who">⭐ ${esc(top.player)}</div><div class="sub">Fantasy leader · ${top.goals} goals, ${top.assists} assists, ${top.apps} apps, ${top.mom} MoM</div></div>`:'<div class="sub">No data.</div>';document.getElementById("fptable").innerHTML=ps.map((p,i)=>{const rk=i<3?`g${i+1}`:"";const cards=(p.yellows?p.yellows+"Y":"")+(p.reds?" "+p.reds+"R":"")||"-";return `<tr><td><span class="rank ${rk}">${i+1}</span></td><td><b>${esc(p.player)}</b></td><td>${p.apps}</td><td>${p.goals}</td><td>${p.assists}</td><td>${p.mom}</td><td>${cards}</td><td><b style="color:var(--grn-d)">${p.fantasy_pts}</b></td></tr>`;}).join("");}
+function renderMissing(){const m=[...MISSING].sort((a,b)=>b.amount_owed-a.amount_owed);document.getElementById("mistable").innerHTML=m.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.player)}</td><td class="due">£${Number(p.amount_owed).toFixed(2)}</td></tr>`).join("");const t=m.reduce((s,p)=>s+Number(p.amount_owed),0);document.getElementById("mistotal").textContent=`Total £${t.toFixed(2)} across ${m.length} players (rows where Paid = No).`;}
+async function loadAll(){try{const[pl,re,mi]=await Promise.all([q("/v_player_stats?select=*"),q("/v_team_results?select=*"),q("/v_missing_payments?select=*")]);PLAYERS=pl;RESULTS=re;MISSING=mi;renderResults();renderFp();renderMissing();}catch(e){document.getElementById("results").innerHTML='<tr><td colspan="9" class="note">Could not load: '+esc(String(e.message||e))+'</td></tr>';}}
+mkbtns(document.getElementById("seasonbtns"),seasons,curSeason,k=>{curSeason=k;renderResults();renderFp();});
+mkbtns(document.getElementById("sortbtns"),sorts,sortKey,k=>{sortKey=k;renderFp();});
+loadAll();
+</script></body></html>
