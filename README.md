@@ -22,6 +22,15 @@ Just open `index.html` in a browser, or serve it:
 npx serve .
 ```
 
+## Environment variables
+
+Set these in Vercel (Project → Settings → Environment Variables), for Production and Preview:
+
+- `SUPABASE_URL` = `https://xplbkkqpgrukjejqufbk.supabase.co/rest/v1`
+- `SUPABASE_ANON_KEY` = the Supabase publishable anon key (read-only; safe to expose in the browser)
+
+At build time `node build.js` injects them into `dist/index.html`. No keys are committed to the repo.
+
 ## Deploy
 Static — no build step. On Vercel: import this repo, framework preset "Other", output = repo root. Every push to `main` redeploys.
 
