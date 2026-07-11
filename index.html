@@ -118,7 +118,7 @@ tr:nth-child(even) td{background:#f8fbf9}
     <div class="note">2026-27 fixtures not released yet (league entries closed at the 8 Jul AGM; Full-Time list usually appears in August). The table below will populate once fixtures and cup draws are published.</div>
     <div style="overflow-x:auto;margin-top:12px"><table><thead><tr>
       <th>Date</th><th>Competition</th><th>Location (H/A)</th><th>Opposition</th><th>Opposition info</th><th>Yes responses</th><th>Squad (GK&rarr;FWD)</th>
-    </tr></thead><tbody>
+    </tr></thead><tbody id="fxbody">
       <tr><td colspan="7" class="muted" style="text-align:center;padding:18px">No fixtures yet &mdash; awaiting release.</td></tr>
     </tbody></table></div>
     <div class="small" style="margin-top:8px">Home venues &mdash; 1st XI: Hampton Sports &amp; Fitness Centre, Hanworth Rd, Hampton TW12 3HB &middot; 2nd XI: Imber Court, Ember Lane, East Molesey KT8 0BT. "Opposition info", "Yes responses" &amp; "Squad" columns to be wired up next.</div>
@@ -246,4 +246,24 @@ function closedLog(){try{return JSON.parse(localStorage.getItem("ojfc_closed")||
 function dismiss(id){const d=dismissed();const t=(THREADS||[]).find(x=>x.id===id);if(!d.includes(id))d.push(id);localStorage.setItem("ojfc_dismiss",JSON.stringify(d));
  if(t){const log=closedLog();log.unshift({ts:new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short"}),text:'&#9993; Handled email: "'+esc(t.subj)+'" &mdash; '+esc(t.who)});localStorage.setItem("ojfc_closed",JSON.stringify(log));}
  renderComms();renderClosed();}
-function renderComms(){if(!THREADS){return;}const A=document.getE
+function renderComms(){if(!THREADS){return;}const A=document.getElementById("comms-action"),I=document.getElementById("comms-info");const dis=dismissed();
+ const act=THREADS.filter(x=>x.isAct&&!dis.includes(x.id)),inf=THREADS.filter(x=>!x.isAct&&!dis.includes(x.id));
+ const card=x=>`<div class="li"><b>${esc(x.subj)}</b><div class="from">${esc(x.who)} &middot; ${x.d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})}</div><div class="snip">${esc(x.snip)}</div><div class="btns"><a class="btn" href="https://mail.google.com/mail/u/0/#all/${x.id}" target="_blank">Open</a><button class="btn ghost" onclick="dismiss('${x.id}')">Dismiss</button></div></div>`;
+ A.innerHTML=act.length?act.map(card).join(""):'<div class="muted">Nothing needs a response right now.</div>';
+ I.innerHTML=inf.length?inf.map(card).join(""):'<div class="muted">No informational items.</div>';}
+function renderClosed(){const log=closedLog();const all=[...log,...CLOSED_SEED];
+ document.getElementById("closedbox").innerHTML=all.length?all.map(c=>`<div class="closed"><span class="ts">${c.ts}</span><br>${c.text}</div>`).join(""):'<div class="muted">Nothing closed yet.</div>';}
+renderClosed();
+loadThreads();
+fetchStats();
+async function loadSelections(){try{var rows=await sbq("/app_selections?select=*");if(!rows||!rows.length)return;
+ var by={};rows.forEach(function(r){(by[r.fixture_id]=by[r.fixture_id]||[]).push(r);});
+ var ORD={GK:0,DEF:1,MID:2,FWD:3};
+ document.getElementById("fxbody").innerHTML=Object.keys(by).map(function(k){var g=by[k];var m=g[0];
+  var yes=g.filter(function(x){return x.response==='yes';});
+  var sq=g.filter(function(x){return x.in_squad;}).sort(function(a,b){return (ORD[a.position]!==undefined?ORD[a.position]:9)-(ORD[b.position]!==undefined?ORD[b.position]:9);});
+  var d=m.fixture_date?new Date(m.fixture_date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}):'TBC';
+  return '<tr><td>'+esc(d)+'</td><td>'+esc(m.competition||'')+'</td><td>'+esc(m.location||'')+'</td><td><b>'+esc(m.opponent||m.fixture_label||'')+'</b>'+(m.team?' <span class="muted">('+esc(m.team)+')</span>':'')+'</td><td class="muted">&mdash;</td><td>'+yes.length+(yes.length?': '+yes.map(function(x){return esc(x.player.split(' ')[0]);}).join(', '):'')+'</td><td>'+(sq.length?sq.map(function(x){return esc(x.player)+' ('+esc(x.position||'?')+')';}).join(', '):'&mdash;')+'</td></tr>';
+ }).join('');}catch(e){}}
+loadSelections();
+</script></body></html>
